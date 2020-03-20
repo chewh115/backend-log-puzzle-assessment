@@ -12,7 +12,10 @@ http://code.google.com/edu/languages/google-python-class/
 Given an apache logfile, find the puzzle urls and download the images.
 
 Here's what a puzzle url looks like:
-10.254.254.28 - - [06/Aug/2007:00:13:48 -0700] "GET /~foo/puzzle-bar-aaab.jpg HTTP/1.0" 302 528 "-" "Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.8.1.6) Gecko/20070725 Firefox/2.0.0.6"
+10.254.254.28 - - [06/Aug/2007:00:13:48 -0700]
+"GET /~foo/puzzle-bar-aaab.jpg HTTP/1.0" 302 528 "-"
+"Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.8.1.6)
+Gecko/20070725 Firefox/2.0.0.6"
 
 """
 
@@ -28,8 +31,26 @@ def read_urls(filename):
     extracting the hostname from the filename itself.
     Screens out duplicate urls and returns the urls sorted into
     increasing order."""
-    # +++your code here+++
-    pass
+    puzzle_urls = []
+    with open(filename, 'r') as log_file:
+        log_list = log_file.read().split('\n')
+        log_list = list(filter(lambda x: ('puzzle' in x), log_list))
+        for url in log_list:
+            url_result = re.findall(r'GET (\S+) HTTP', url)
+            puzzle_urls.append(url_result[0])
+    url_list = create_urls(puzzle_urls)
+    url_set = list(set(url_list))
+    url_set.sort()
+    return url_set
+
+
+def create_urls(urls):
+    front = 'http://code.google.com'
+    url_returns = [front+url for url in urls]
+    return url_returns
+
+
+read_urls('animal_code.google.com')
 
 
 def download_images(img_urls, dest_dir):
@@ -47,7 +68,8 @@ def download_images(img_urls, dest_dir):
 def create_parser():
     """Create an argument parser object"""
     parser = argparse.ArgumentParser()
-    parser.add_argument('-d', '--todir',  help='destination directory for downloaded images')
+    parser.add_argument(
+        '-d', '--todir', help='destination directory for downloaded images')
     parser.add_argument('logfile', help='apache logfile to extract urls from')
 
     return parser
@@ -55,20 +77,23 @@ def create_parser():
 
 def main(args):
     """Parse args, scan for urls, get images from urls"""
-    parser = create_parser()
+    # parser = create_parser()
 
-    if not args:
-        parser.print_usage()
-        sys.exit(1)
+    # if not args:
+    #     parser.print_usage()
+    #     sys.exit(1)
 
-    parsed_args = parser.parse_args(args)
+    # parsed_args = parser.parse_args(args)
 
-    img_urls = read_urls(parsed_args.logfile)
+    img_urls = read_urls('animal_code.google.com')
 
-    if parsed_args.todir:
-        download_images(img_urls, parsed_args.todir)
-    else:
-        print('\n'.join(img_urls))
+    # img_urls = read_urls(parsed_args.logfile)
+
+    # if parsed_args.todir:
+    #     download_images(img_urls, 'testdir')
+    # download_images(img_urls, parsed_args.todir)
+    # else:
+    print('\n'.join(img_urls))
 
 
 if __name__ == '__main__':
