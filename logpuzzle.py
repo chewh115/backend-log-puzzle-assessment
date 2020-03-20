@@ -19,11 +19,16 @@ Gecko/20070725 Firefox/2.0.0.6"
 
 """
 
+__author__ = "chewh115 with Kano, Ben and Tiffany's help"
+
+import argparse
 import os
 import re
 import sys
-import urllib
-import argparse
+if sys.version_info[0] >= 3:
+    from urllib.request import urlretrieve
+else:
+    from urllib import urlretrieve
 
 
 def read_urls(filename):
@@ -61,8 +66,19 @@ def download_images(img_urls, dest_dir):
     with an img tag to show each local image file.
     Creates the directory if necessary.
     """
-    # +++your code here+++
-    pass
+    if not os.path.exists(dest_dir):
+        os.makedirs(dest_dir)
+        print('Dir made')
+
+    index_html = '<html><body>'
+    for index, url in enumerate(img_urls):
+        image_name = 'img' + str(index)
+        print('Retrieving {}'.format(url))
+        urlretrieve(url, dest_dir + '/' + image_name)
+        index_html += '<img src={}></img>'.format(image_name)
+    index_html += '</body></html>'
+    with open(dest_dir + '/index.html', 'w') as write_index:
+        write_index.write(index_html)
 
 
 def create_parser():
@@ -90,7 +106,7 @@ def main(args):
     # img_urls = read_urls(parsed_args.logfile)
 
     # if parsed_args.todir:
-    #     download_images(img_urls, 'testdir')
+    download_images(img_urls, 'testdir')
     # download_images(img_urls, parsed_args.todir)
     # else:
     print('\n'.join(img_urls))
